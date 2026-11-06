@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+}
+
+group = 'ru.on8off'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
+    implementation 'commons-io:commons-io:2.16.1'
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.5")
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.4'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation "org.wiremock:wiremock-standalone:3.13.2"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
