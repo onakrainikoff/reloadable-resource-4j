@@ -1,4 +1,5 @@
 # reloadable-resource-4j
+[![](https://jitpack.io/v/onakrainikoff/reloadable-resource-4j.svg)](https://jitpack.io/#onakrainikoff/reloadable-resource-4j)
 
 `reloadable-resource-4j` is a Java library implementing self reloadable resource pattern.
 
@@ -17,14 +18,34 @@
 
 Maven:
 
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 ```
 
+```xml
+<dependency>
+    <groupId>com.github.onakrainikoff</groupId>
+    <artifactId>reloadable-resource-4j</artifactId>
+    <version>1.0.1</version>
+</dependency>
 ```
 
 Gradle:
 
-```
+```groovy
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
 
+dependencies {
+    implementation 'com.github.onakrainikoff:reloadable-resource-4j:1.0.1'
+}
 ```
 
 ## Usage
