@@ -58,8 +58,8 @@ ReloadableResource<String> resource = new ReloadableResource<>(
         new FileDataLoader<>("/opt/service/data.txt", new StringDataMapper()),
         30, TimeUnit.SECONDS);
 
-ReloadableData<String> data = resource.get();
-String value = data.getValue();
+ReloadableData<String> data = resource.getData();
+String value = data.getValue(); // or just resource.getDataValue()
 ```
 
 `FileDataLoader` detects changes using the file's modification time. Files
@@ -73,8 +73,8 @@ ReloadableResource<String> resource = new ReloadableResource<>(
         new FileDataLoader<>("classpath:data.txt", new StringDataMapper()),
         30, TimeUnit.SECONDS);
 
-ReloadableData<String> data = resource.get();
-String value = data.getValue();
+ReloadableData<String> data = resource.getData();
+String value = data.getValue(); // or just resource.getDataValue()
 ```
 
 `FileDataLoader` can not detect changes of resource in classpath. In fact, the resource data will be loaded for the first time only.
@@ -87,8 +87,8 @@ ReloadableResource<String> resource = new ReloadableResource<>(
         new HttpDataLoader<>("https://example.com/data.txt", new StringDataMapper()),
         30, TimeUnit.SECONDS);
 
-ReloadableData<String> data = resource.get();
-String value = data.getValue();
+ReloadableData<String> data = resource.getData();
+String value = data.getValue(); // or just resource.getDataValue()
 ```
 
 `HttpDataLoader` sends GET requests and uses the previous modification time in an `If-Modified-Since` header. A `304 Not Modified` response leaves the
@@ -194,6 +194,26 @@ ReloadableResource<String> resource = new ReloadableResource<>(
         listener);
 ```
 
+### Async loaded data getting
+
+Instead, to call `ReloadableResource.getData()` or `ReloadableResource.getDataValue()` you can use `SetNewDataTo` or `SetNewDataValueTo` listeners:
+
+```java
+Consumer<ReloadableData<String>> consumer = new Consumer<>() {
+    @Override
+    public void accept(ReloadableData<String> reloadableData) {
+        // ...
+    }
+};
+
+ReloadableResource<String> resource = new ReloadableResource<>(
+        "application-data",
+        new FileDataLoader<>("/opt/service/data.txt", new StringDataMapper()),
+        15,
+        TimeUnit.SECONDS, 
+        new SetNewDataTo(consumer));
+```
+
 ### Async first data load
 
 `ReloadableResource` performs first data load during construction in current thread. If you want to avoid this, use `AsyncReloadableResource` instead:
@@ -204,8 +224,8 @@ AsyncReloadableResource<String> resource = new AsyncReloadableResource<>(
         new FileDataLoader<>("/opt/service/data.txt", new StringDataMapper()),
         30, TimeUnit.SECONDS);
 resource.start();
-ReloadableData<String> data = resource.get();
-String value = data.getValue();
+ReloadableData<String> data = resource.getData();
+String value = data.getValue(); // or just resource.getDataValue()
 ```
 
 Call `start()` performs first data load in current thread and waits for it to complete.

@@ -2,12 +2,15 @@ package ru.on8off.reloadable.resource;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+import ru.on8off.reloadable.resource.listener.ReloadableListener;
+import ru.on8off.reloadable.resource.listener.SetNewDataValueTo;
 import ru.on8off.reloadable.resource.loader.DataLoader;
 import ru.on8off.reloadable.resource.loader.FileDataLoader;
 import ru.on8off.reloadable.resource.mapper.StringDataMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,27 +27,25 @@ class AsyncReloadableResourceTest {
         FileUtils.writeStringToFile(file, "test1");
         AtomicInteger countNewValues = new AtomicInteger();
         AtomicInteger countExceptions = new AtomicInteger();
-        ReloadableListener listener = new ReloadableListener() {
+        ReloadableListener<String> onException = new ReloadableListener<>() {
             @Override
-            public void onReload(String name, DataLoader<?> dataSource, ReloadableData<?> oldValue, ReloadableData<?> newValue, Exception ex, long totalTimeMs) {
-                System.out.printf("onReload: name=%s, dataSource=%s, oldValue=%s, newValue=%s, ex=%s, totalTimeMs=%d%n", name, dataSource, oldValue, newValue, ex, totalTimeMs);
-                if (newValue != null) {
-                    countNewValues.incrementAndGet();
-                }
+            public void onReload(String name, DataLoader<String> dataLoader, ReloadableData<String> oldData, ReloadableData<String> newData, Exception ex, long totalTimeMs) {
                 if (ex != null) {
                     countExceptions.incrementAndGet();
                 }
             }
         };
+        ReloadableListener<String> onNewData = new SetNewDataValueTo<>((data)-> countNewValues.incrementAndGet());
+        List<ReloadableListener<String>> listeners = List.of(onNewData, onException);
 
-        AsyncReloadableResource<String> asyncReloadableResource = new AsyncReloadableResource<>("test", new FileDataLoader<>(path, new StringDataMapper()), 50, TimeUnit.MILLISECONDS, listener);
-        ReloadableData<String> data = asyncReloadableResource.get();
+        AsyncReloadableResource<String> asyncReloadableResource = new AsyncReloadableResource<>("test", new FileDataLoader<>(path, new StringDataMapper()), 50, TimeUnit.MILLISECONDS, listeners);
+        ReloadableData<String> data = asyncReloadableResource.getData();
         Thread.sleep(100);
         assertNull(data);
         assertFalse(asyncReloadableResource.isStarted());
 
         asyncReloadableResource.start();
-        data = asyncReloadableResource.get();
+        data = asyncReloadableResource.getData();
         assertNotNull(data);
         assertNotNull(data.getLastModified());
         assertEquals("test1", data.getValue());
@@ -52,7 +53,7 @@ class AsyncReloadableResourceTest {
         Thread.sleep(100);
         FileUtils.writeStringToFile(file, "test2");
         Thread.sleep(100);
-        ReloadableData<String> data2 = asyncReloadableResource.get();
+        ReloadableData<String> data2 = asyncReloadableResource.getData();
         assertNotNull(data2);
         assertNotNull(data2.getLastModified());
         assertTrue(data2.getLastModified().isAfter(data.getLastModified()));
@@ -60,7 +61,7 @@ class AsyncReloadableResourceTest {
 
         file.delete();
         Thread.sleep(100);
-        ReloadableData<String> data3 = asyncReloadableResource.get();
+        ReloadableData<String> data3 = asyncReloadableResource.getData();
         assertNotNull(data3);
         assertSame(data2, data3);
         assertEquals("test2", data3.getValue());

@@ -2,6 +2,7 @@ package ru.on8off.reloadable.resource;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import ru.on8off.reloadable.resource.listener.ReloadableListener;
 import ru.on8off.reloadable.resource.loader.DataLoader;
 
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ public class ReloadableResource<T> {
     protected final long period;
     protected final TimeUnit unit;
     protected final ScheduledExecutorService executorService;
-    protected final List<ReloadableListener> listeners;
+    protected final List<ReloadableListener<T>> listeners;
     private final ReentrantLock reloadLock = new ReentrantLock();
     protected volatile ReloadableData<T> data;
 
@@ -60,7 +61,7 @@ public class ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listener listener notified after reload attempts; may be {@code null}
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener listener) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener<T> listener) {
         this(name, dataLoader, period, unit, (listener == null ? Collections.emptyList() : Collections.singletonList(listener)), null);
     }
 
@@ -73,7 +74,7 @@ public class ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listeners listeners notified after reload attempts; may be {@code null}
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener> listeners) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners) {
         this(name, dataLoader, period, unit, listeners, null);
     }
 
@@ -100,7 +101,7 @@ public class ReloadableResource<T> {
      * @param listeners listeners notified after reload attempts; may be {@code null}
      * @param executorService executor used for reloads; may be {@code null} to create a default
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener> listeners, ScheduledExecutorService executorService) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners, ScheduledExecutorService executorService) {
         this.name = Validate.notNull(name, "Param 'name' must not be null");
         this.dataLoader = Validate.notNull(dataLoader, "Param 'dataLoader' must not be null");
         Validate.isTrue(period > 0, "Param 'period' must be > 0");
@@ -121,10 +122,29 @@ public class ReloadableResource<T> {
     /**
      * Returns the most recently loaded resource data.
      *
-     * @return current data, or {@code null} if data has not been loaded yet
+     * @return resource data, or {@code null} if data has not been loaded yet
      */
-    public ReloadableData<T> get() {
+    public ReloadableData<T> getData() {
         return data;
+    }
+
+    /**
+     * Returns the value of the most recently loaded resource data.
+     *
+     * @return the value of resource data, or {@code null} if data has not been loaded yet
+     */
+    public T getDataValue(){
+        return data != null ? data.getValue() : null;
+    }
+
+
+    /**
+     * The time of the last modification of the resource data
+     *
+     * @return time or {@code null} if data has not been loaded yet
+     */
+    public LocalDateTime getDataLastModified() {
+        return data != null ? data.getLastModified() : null;
     }
 
     /** Performs the initial load and schedules subsequent periodic reloads. */
@@ -148,14 +168,14 @@ public class ReloadableResource<T> {
         try {
             reloadLock.lock();
             startedTime = System.currentTimeMillis();
-            LocalDateTime lastModified = data != null ? data.getLastModified() : null;
-            ReloadableData<T> newValue = dataLoader.load(lastModified);
-            ReloadableData<T> oldValue = data;
-            if (newValue != null) {
-                data = newValue;
+            LocalDateTime lastModified = getDataLastModified();
+            ReloadableData<T> oldData = data;
+            ReloadableData<T> newData = dataLoader.load(lastModified);
+            if (newData != null) {
+                data = newData;
             }
             long totalTime = System.currentTimeMillis() - startedTime;
-            onReloadNotify(oldValue, newValue, null,  totalTime);
+            onReloadNotify(oldData, newData, null,  totalTime);
         } catch (Exception ex) {
             long totalTime = startedTime != null ? System.currentTimeMillis() - startedTime : 0;
             onReloadNotify(data, null, ex,  totalTime);
@@ -177,16 +197,16 @@ public class ReloadableResource<T> {
     /**
      * Notifies registered listeners about a reload attempt.
      *
-     * @param oldValue value held before the attempt
-     * @param newValue value returned by the loader
+     * @param oldData value held before the attempt
+     * @param newData value returned by the loader
      * @param ex exception raised during the attempt, or {@code null} on success
      * @param totalTimeMs elapsed time in milliseconds
      */
-    protected void onReloadNotify(ReloadableData<T> oldValue, ReloadableData<T> newValue, Exception ex, long totalTimeMs) {
+    protected void onReloadNotify(ReloadableData<T> oldData, ReloadableData<T> newData, Exception ex, long totalTimeMs) {
         if (!listeners.isEmpty()) {
-            for (ReloadableListener listener : listeners) {
+            for (ReloadableListener<T> listener : listeners) {
                 try {
-                    listener.onReload(name, dataLoader, oldValue, newValue, ex, totalTimeMs);
+                    listener.onReload(name, dataLoader, oldData, newData, ex, totalTimeMs);
                 } catch (Throwable t) {
                     Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, t, ()-> "ReloadableResource onReloadNotify error:");
                 }
@@ -233,7 +253,7 @@ public class ReloadableResource<T> {
     }
 
     /** @return thread-safe list of registered reload listeners */
-    public List<ReloadableListener> getListeners() {
+    public List<ReloadableListener<T>> getListeners() {
         return listeners;
     }
 
