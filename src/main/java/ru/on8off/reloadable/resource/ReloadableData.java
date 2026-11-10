@@ -28,9 +28,9 @@ public class ReloadableData<T>{
     }
 
     /**
-     * Returns the value of the loaded data.
+     * Returns the value of the data.
      *
-     * @return loaded data, or {@code null} if not set
+     * @return the value of data, or {@code null} if not set
      */
     public T getValue() {
         return value;
