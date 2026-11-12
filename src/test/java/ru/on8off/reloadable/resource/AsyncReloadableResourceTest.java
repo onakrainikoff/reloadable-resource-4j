@@ -27,18 +27,17 @@ class AsyncReloadableResourceTest {
         FileUtils.writeStringToFile(file, "test1");
         AtomicInteger countNewValues = new AtomicInteger();
         AtomicInteger countExceptions = new AtomicInteger();
-        ReloadableListener<String> onException = new ReloadableListener<>() {
+        ReloadableListener<Object> onException = new ReloadableListener<>() {
             @Override
-            public void onReload(String name, DataLoader<String> dataLoader, ReloadableData<String> oldData, ReloadableData<String> newData, Exception ex, long totalTimeMs) {
+            public void onReload(String name, DataLoader<? extends Object> dataLoader, ReloadableData<? extends Object> oldData, ReloadableData<? extends Object> newData, Exception ex, long totalTimeMs) {
                 if (ex != null) {
                     countExceptions.incrementAndGet();
                 }
             }
         };
         ReloadableListener<String> onNewData = new SetNewDataValueTo<>((data)-> countNewValues.incrementAndGet());
-        List<ReloadableListener<String>> listeners = List.of(onNewData, onException);
 
-        AsyncReloadableResource<String> asyncReloadableResource = new AsyncReloadableResource<>("test", new FileDataLoader<>(path, new StringDataMapper()), 50, TimeUnit.MILLISECONDS, listeners);
+        AsyncReloadableResource<String> asyncReloadableResource = new AsyncReloadableResource<>("test", new FileDataLoader<>(path, new StringDataMapper()), 50, TimeUnit.MILLISECONDS, List.of(onNewData, onException));
         ReloadableData<String> data = asyncReloadableResource.getData();
         Thread.sleep(100);
         assertNull(data);

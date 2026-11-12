@@ -36,7 +36,7 @@ public class ReloadableResource<T> {
     protected final long period;
     protected final TimeUnit unit;
     protected final ScheduledExecutorService executorService;
-    protected final List<ReloadableListener<T>> listeners;
+    protected final List<ReloadableListener<? super T>> listeners;
     private final ReentrantLock reloadLock = new ReentrantLock();
     protected volatile ReloadableData<T> data;
 
@@ -61,7 +61,7 @@ public class ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listener listener notified after reload attempts; may be {@code null}
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener<T> listener) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener<? super T> listener) {
         this(name, dataLoader, period, unit, (listener == null ? Collections.emptyList() : Collections.singletonList(listener)), null);
     }
 
@@ -74,7 +74,7 @@ public class ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listeners listeners notified after reload attempts; may be {@code null}
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<? super T>> listeners) {
         this(name, dataLoader, period, unit, listeners, null);
     }
 
@@ -101,7 +101,7 @@ public class ReloadableResource<T> {
      * @param listeners listeners notified after reload attempts; may be {@code null}
      * @param executorService executor used for reloads; may be {@code null} to create a default
      */
-    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners, ScheduledExecutorService executorService) {
+    public ReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<? super T>> listeners, ScheduledExecutorService executorService) {
         this.name = Validate.notNull(name, "Param 'name' must not be null");
         this.dataLoader = Validate.notNull(dataLoader, "Param 'dataLoader' must not be null");
         Validate.isTrue(period > 0, "Param 'period' must be > 0");
@@ -204,7 +204,7 @@ public class ReloadableResource<T> {
      */
     protected void onReloadNotify(ReloadableData<T> oldData, ReloadableData<T> newData, Exception ex, long totalTimeMs) {
         if (!listeners.isEmpty()) {
-            for (ReloadableListener<T> listener : listeners) {
+            for (ReloadableListener<? super T> listener : listeners) {
                 try {
                     listener.onReload(name, dataLoader, oldData, newData, ex, totalTimeMs);
                 } catch (Throwable t) {
@@ -253,7 +253,7 @@ public class ReloadableResource<T> {
     }
 
     /** @return thread-safe list of registered reload listeners */
-    public List<ReloadableListener<T>> getListeners() {
+    public List<ReloadableListener<? super T>> getListeners() {
         return listeners;
     }
 
