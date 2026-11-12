@@ -18,5 +18,5 @@ public interface ReloadableListener<T> {
      * @param ex exception raised during the attempt, or {@code null} on success
      * @param totalTimeMs elapsed time in milliseconds
      */
-    void onReload(String name, DataLoader<T> dataLoader, ReloadableData<T> oldData, ReloadableData<T> newData, Exception ex, long totalTimeMs);
+    void onReload(String name, DataLoader<? extends T> dataLoader, ReloadableData<? extends T> oldData, ReloadableData<? extends T> newData, Exception ex, long totalTimeMs);
 }

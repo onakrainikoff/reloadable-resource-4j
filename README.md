@@ -31,7 +31,7 @@ Maven:
 <dependency>
     <groupId>com.github.onakrainikoff</groupId>
     <artifactId>reloadable-resource-4j</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.onakrainikoff:reloadable-resource-4j:1.0.2'
+    implementation 'com.github.onakrainikoff:reloadable-resource-4j:1.0.3'
 }
 ```
 

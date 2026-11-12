@@ -7,15 +7,15 @@ import ru.on8off.reloadable.resource.loader.DataLoader;
 import java.util.function.Consumer;
 
 public class SetNewDataTo<T> implements ReloadableListener<T> {
-    private final Consumer<ReloadableData<T>> consumer;
+    private final Consumer<ReloadableData<? extends T>> consumer;
 
-    public SetNewDataTo(Consumer<ReloadableData<T>> consumer) {
+    public SetNewDataTo(Consumer<ReloadableData<? extends T>> consumer) {
         this.consumer = Validate.notNull(consumer, "Param 'consumer' must not be null");
     }
 
     @Override
-    public void onReload(String name, DataLoader<T> dataLoader, ReloadableData<T> oldData, ReloadableData<T> newData, Exception ex, long totalTimeMs) {
-        if (newData != null) {
+    public void onReload(String name, DataLoader<? extends T> dataLoader, ReloadableData<? extends T> oldData, ReloadableData<? extends T> newData, Exception ex, long totalTimeMs) {
+        if (ex == null && newData != null) {
             consumer.accept(newData);
         }
     }

@@ -14,8 +14,8 @@ public class SetNewDataValueTo<T> implements ReloadableListener<T> {
     }
 
     @Override
-    public void onReload(String name, DataLoader<T> dataLoader, ReloadableData<T> oldData, ReloadableData<T> newData, Exception ex, long totalTimeMs) {
-        if (newData != null) {
+    public void onReload(String name, DataLoader<? extends T> dataLoader, ReloadableData<? extends T> oldData, ReloadableData<? extends T> newData, Exception ex, long totalTimeMs) {
+        if (ex == null && newData != null) {
             consumer.accept(newData.getValue());
         }
     }

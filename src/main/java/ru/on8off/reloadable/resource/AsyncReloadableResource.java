@@ -40,7 +40,7 @@ public class AsyncReloadableResource<T> extends ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listener listener notified after reload attempts; may be {@code null}
      */
-    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener<T> listener) {
+    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, ReloadableListener<? super T> listener) {
         super(name, dataLoader, period, unit, listener);
     }
 
@@ -53,7 +53,7 @@ public class AsyncReloadableResource<T> extends ReloadableResource<T> {
      * @param unit time unit of {@code period}
      * @param listeners listeners notified after reload attempts; may be {@code null}
      */
-    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners) {
+    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<? super T>> listeners) {
         super(name, dataLoader, period, unit, listeners);
     }
 
@@ -80,7 +80,7 @@ public class AsyncReloadableResource<T> extends ReloadableResource<T> {
      * @param listeners listeners notified after reload attempts; may be {@code null}
      * @param executorService executor used for reloads; may be {@code null} to create a default
      */
-    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<T>> listeners, ScheduledExecutorService executorService) {
+    public AsyncReloadableResource(String name, DataLoader<T> dataLoader, long period, TimeUnit unit, List<ReloadableListener<? super T>> listeners, ScheduledExecutorService executorService) {
         super(name, dataLoader, period, unit, listeners, executorService);
     }
 
