@@ -13,7 +13,7 @@ import java.io.InputStream;
  *
  * @param <T> target type
  */
-public class JsonObjectDataMapper<T> extends BaseDataMapper<InputStream, T> {
+public class JsonObjectDataMapper<T> extends ResourceDataMapper<InputStream, T> {
     private final ObjectMapper objectMapper;
 
     /**

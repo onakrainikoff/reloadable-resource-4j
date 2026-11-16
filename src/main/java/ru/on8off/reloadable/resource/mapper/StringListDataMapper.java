@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Reads an input stream into a list of lines.
  */
-public class StringListDataMapper extends BaseDataMapper<InputStream, List<String>> {
+public class StringListDataMapper extends ResourceDataMapper<InputStream, List<String>> {
     private final Charset charset;
 
     /**

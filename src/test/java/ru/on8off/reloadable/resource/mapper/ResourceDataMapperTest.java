@@ -5,12 +5,12 @@ import ru.on8off.reloadable.resource.ReloadableData;
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 
-class BaseDataMapperTest {
+class ResourceDataMapperTest {
 
     @Test
     void testApply() {
         ReloadableData<String> data = new ReloadableData<>(LocalDateTime.now(), "Test");
-        BaseDataMapper<String, String> mapper = new BaseDataMapper<>() {
+        ResourceDataMapper<String, String> mapper = new ResourceDataMapper<>() {
             @Override
             public String map(String dataFrom) {
                 return dataFrom;
@@ -25,21 +25,21 @@ class BaseDataMapperTest {
 
     @Test
     void testPipeline(){
-        DataMapper<String, Integer> mapperFirst = new BaseDataMapper<>() {
+        DataMapper<String, Integer> mapperFirst = new ResourceDataMapper<>() {
             @Override
             public Integer map(String dataFrom) {
                 return Integer.parseInt(dataFrom);
             }
         };
 
-        DataMapper<Integer, Integer> mapperSecond = new BaseDataMapper<>() {
+        DataMapper<Integer, Integer> mapperSecond = new ResourceDataMapper<>() {
             @Override
             public Integer map(Integer dataFrom) {
                 return dataFrom * 2;
             }
         };
 
-        DataMapper<Integer, String> mapperThird = new BaseDataMapper<>() {
+        DataMapper<Integer, String> mapperThird = new ResourceDataMapper<>() {
             @Override
             public String map(Integer dataFrom) {
                 return String.valueOf(dataFrom);
