@@ -9,7 +9,7 @@ import ru.on8off.reloadable.resource.ReloadableData;
  * @param <F> source data type
  * @param <T> mapped data type
  */
-public abstract class BaseDataMapper<F, T> implements DataMapper<F, T> {
+public abstract class ResourceDataMapper<F, T> implements DataMapper<F, T> {
 
     /**
      * Maps the source data and carries its modification time into the result.

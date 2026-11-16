@@ -11,7 +11,7 @@ import java.io.InputStream;
 /**
  * Parses an input stream as a Jackson JSON tree.
  */
-public class JsonNodeDataMapper extends BaseDataMapper<InputStream, JsonNode> {
+public class JsonNodeDataMapper extends ResourceDataMapper<InputStream, JsonNode> {
     private final ObjectMapper objectMapper;
 
     /**

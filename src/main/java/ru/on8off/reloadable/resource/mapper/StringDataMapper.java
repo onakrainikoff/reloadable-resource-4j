@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 /**
  * Reads an entire input stream into a string.
  */
-public class StringDataMapper extends BaseDataMapper<InputStream, String> {
+public class StringDataMapper extends ResourceDataMapper<InputStream, String> {
     private final Charset charset;
 
     /**

@@ -9,7 +9,7 @@ import java.util.Properties;
 /**
  * Reads a Java properties from an input stream.
  */
-public class PropertiesDataMapper extends BaseDataMapper<InputStream, Properties> {
+public class PropertiesDataMapper extends ResourceDataMapper<InputStream, Properties> {
 
     /**
      * Loads all properties from the supplied stream.

@@ -31,7 +31,7 @@ Maven:
 <dependency>
     <groupId>com.github.onakrainikoff</groupId>
     <artifactId>reloadable-resource-4j</artifactId>
-    <version>1.0.3</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.onakrainikoff:reloadable-resource-4j:1.0.3'
+    implementation 'com.github.onakrainikoff:reloadable-resource-4j:1.1.0'
 }
 ```
 
@@ -214,22 +214,32 @@ ReloadableResource<String> resource = new ReloadableResource<>(
         new SetNewDataTo(consumer));
 ```
 
-### Async first data load
+### Managed start of data loading
 
-`ReloadableResource` performs first data load during construction in current thread. If you want to avoid this, use `AsyncReloadableResource` instead:
+`ReloadableResource` performs first data load and starts scheduled reloading during construction in current thread. If you want to manage this process, use `ManagedReloadableResource` instead:
 
 ```java
-AsyncReloadableResource<String> resource = new AsyncReloadableResource<>(
+ManagedReloadableResource<String> resource = new ManagedReloadableResource<>(
         "application-data",
         new FileDataLoader<>("/opt/service/data.txt", new StringDataMapper()),
         30, TimeUnit.SECONDS);
-resource.start();
-ReloadableData<String> data = resource.getData();
-String value = data.getValue(); // or just resource.getDataValue()
+Future<ReloadableData<String>> dataFuture = resource.loadAsync();
+
+// ....
+
+ReloadableData<String> data = dataFuture.get(); 
+// or
+// dataFuture.get();
+// resource.getData()
+
+resource.startScheduling(0);
 ```
 
-Call `start()` performs first data load in current thread and waits for it to complete.
-Call `startAsync()` performs first data load asynchronously and does not wait for it to complete.
+Call `load()` performs data loading in current thread and returns `ReloadableData<T>` or throws Exception.
+
+Call `loadAsync()` performs data loading asynchronously and returns Future. `Future.get()` returns `ReloadableData<T>` or throws Exception.
+
+Call `startScheduling(long initialDelay)` starts scheduled reloads with initial delay.
 
 ### Shutdown
 

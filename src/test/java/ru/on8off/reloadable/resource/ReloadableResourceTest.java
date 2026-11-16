@@ -28,12 +28,9 @@ class ReloadableResourceTest {
         FileUtils.writeStringToFile(file, "test1");
         AtomicInteger countNewValues = new AtomicInteger();
         AtomicInteger countExceptions = new AtomicInteger();
-        ReloadableListener<Object> onException = new ReloadableListener<>() {
-            @Override
-            public void onReload(String name, DataLoader<? extends Object> dataLoader, ReloadableData<? extends Object> oldData, ReloadableData<? extends Object> newData, Exception ex, long totalTimeMs) {
-                if (ex != null) {
-                    countExceptions.incrementAndGet();
-                }
+        ReloadableListener<Object> onException = (name, dataLoader, oldData, newData, ex, totalTimeMs) -> {
+            if (ex != null) {
+                countExceptions.incrementAndGet();
             }
         };
         ReloadableListener<String> onNewData = new SetNewDataTo<>((data)-> countNewValues.incrementAndGet());
