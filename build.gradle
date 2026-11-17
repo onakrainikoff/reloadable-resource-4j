@@ -37,6 +37,18 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            pom {
+                name = 'reloadable-resource-4j'
+                description = 'Spring integration of the reloadable-resource-4j library'
+                url = 'https://github.com/onakrainikoff/reloadable-resource-4j'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+            }
         }
     }
 }

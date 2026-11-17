@@ -257,3 +257,7 @@ Runtime.getRuntime().addShutdownHook(new Thread(resource::shutdown));
 | `commons-io:commons-io` | `2.16.1` |
 | `org.apache.httpcomponents.client5:httpclient5` | `5.6.5` |
 | `com.fasterxml.jackson.core:jackson-databind` | `2.22.4` |
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
