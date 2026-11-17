@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2026 onakrainikoff
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package ru.on8off.reloadable.resource.loader;
 
 import org.apache.commons.io.IOUtils;
